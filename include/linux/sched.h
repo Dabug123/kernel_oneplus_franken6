@@ -4000,4 +4000,8 @@ void cpufreq_remove_update_util_hook(int cpu);
 
 extern DEFINE_PER_CPU_READ_MOSTLY(int, sched_load_boost);
 
+#ifdef CONFIG_DYNAMIC_STUNE_BOOST
+extern int sched_dynamic_stune_boost;
+#endif /* CONFIG_DYNAMIC_STUNE_BOOST */
+
 #endif

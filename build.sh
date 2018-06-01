@@ -21,7 +21,7 @@ export DTC_EXT=~/f/out/host/linux-x86/bin/dtc
 DEFCONFIG="sdm845-perf_defconfig"
 
 # Kernel Details
-VER=".R1"
+VER=".R1.2"
 
 # Paths
 KERNEL_DIR=`pwd`

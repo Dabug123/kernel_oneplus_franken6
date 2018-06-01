@@ -12,28 +12,29 @@ clear
 THREAD="-j$(grep -c ^processor /proc/cpuinfo)"
 KERNEL="Image"
 DTBIMAGE="dtb"
-export CLANG_PATH=~/android/clang/clang-r328903/bin/
+export CLANG_PATH=~/clang/clang-r328903/bin/
 export PATH=${CLANG_PATH}:${PATH}
 export CLANG_TRIPLE=aarch64-linux-gnu-
 export CROSS_COMPILE=${HOME}/android/aarch64-linux-android-4.9/bin/aarch64-linux-android-
 export CROSS_COMPILE_ARM32=${HOME}/android/arm-linux-androideabi-4.9/bin/arm-linux-androideabi-
+export DTC_EXT=~/f/out/host/linux-x86/bin/dtc
 DEFCONFIG="sdm845-perf_defconfig"
 
 # Kernel Details
-VER=".R6"
+VER=".R1"
 
 # Paths
 KERNEL_DIR=`pwd`
 REPACK_DIR="${HOME}/android/AnyKernel2"
 PATCH_DIR="${HOME}/android/AnyKernel2/patch"
 MODULES_DIR="${HOME}/android/AnyKernel2/modules"
-ZIP_MOVE="${HOME}/android/AK-releases"
-ZIMAGE_DIR="${HOME}/android/op6/arch/arm64/boot/"
+ZIP_MOVE="${HOME}/f6"
+ZIMAGE_DIR="${HOME}/f6/arch/arm64/boot/"
 
 # Functions
 function clean_all {
 		rm -rf $MODULES_DIR/*
-		cd ~/android/op6/out/kernel
+		cd ~/f6/out/kernel
 		rm -rf $DTBIMAGE
 		git reset --hard > /dev/null 2>&1
 		git clean -f -d > /dev/null 2>&1
@@ -59,7 +60,7 @@ function make_dtb {
 }
 
 function make_boot {
-		cp -vr ~/android/op6/out/arch/arm64/boot/Image.gz-dtb ~/android/AnyKernel2/zImage
+		cp -vr ~/f6/out/arch/arm64/boot/Image.gz-dtb ~/android/AnyKernel2/zImage
 }
 
 
@@ -82,14 +83,14 @@ echo -e "${restore}"
 
 
 # Vars
-BASE_AK_VER="Chewie"
+BASE_AK_VER="FrankenKernel"
 AK_VER="$BASE_AK_VER$VER"
 export LOCALVERSION=~`echo $AK_VER`
 export LOCALVERSION=~`echo $AK_VER`
 export ARCH=arm64
 export SUBARCH=arm64
-export KBUILD_BUILD_USER=matthewdalex
-export KBUILD_BUILD_HOST=DarkRoom
+export KBUILD_BUILD_USER=Dabug123
+export KBUILD_BUILD_HOST=TheLab
 
 echo
 

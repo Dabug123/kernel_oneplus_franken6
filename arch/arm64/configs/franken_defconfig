@@ -419,6 +419,7 @@ CONFIG_PCI_MSM=y
 # Kernel Features
 #
 CONFIG_ZEN_INTERACTIVE=y
+CONFIG_DYNAMIC_STUNE_BOOST=y
 
 #
 # ARM errata workarounds via the alternatives framework

@@ -18,10 +18,10 @@ export CLANG_TRIPLE=aarch64-linux-gnu-
 export CROSS_COMPILE=${HOME}/android/aarch64-linux-android-4.9/bin/aarch64-linux-android-
 export CROSS_COMPILE_ARM32=${HOME}/android/arm-linux-androideabi-4.9/bin/arm-linux-androideabi-
 export DTC_EXT=~/f/out/host/linux-x86/bin/dtc
-DEFCONFIG="sdm845-perf_defconfig"
+DEFCONFIG="franken_defconfig"
 
 # Kernel Details
-VER=".R2.5"
+VER=".R3"
 
 # Paths
 KERNEL_DIR=`pwd`

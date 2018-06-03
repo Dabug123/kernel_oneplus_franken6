@@ -48,10 +48,10 @@ module_param(sched_boost_on_input, uint, 0644);
 static bool sched_boost_active;
 
 #ifdef CONFIG_DYNAMIC_STUNE_BOOST
-static int dynamic_stune_boost = 0;
+static int dynamic_stune_boost = 6;
 module_param(dynamic_stune_boost, uint, 0644);
 
-int sched_dynamic_stune_boost = 6;
+int sched_dynamic_stune_boost = 0;
 #endif /* CONFIG_DYNAMIC_STUNE_BOOST */
 
 static struct delayed_work input_boost_rem;

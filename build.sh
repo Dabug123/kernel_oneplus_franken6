@@ -21,7 +21,7 @@ export DTC_EXT=~/f/out/host/linux-x86/bin/dtc
 DEFCONFIG="franken_defconfig"
 
 # Kernel Details
-VER=".R13"
+VER=".R13.1"
 
 # Paths
 KERNEL_DIR=`pwd`

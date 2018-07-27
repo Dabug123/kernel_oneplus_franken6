@@ -426,6 +426,7 @@ CONFIG_FORCE_FAST_CHARGE=y
 CONFIG_SOUND_CONTROL=y
 CONFIG_SWEEP2SLEEP=y
 CONFIG_PARAM_READ_WRITE=y
+CONFIG_FRANDOM=y
 
 #
 # ARM errata workarounds via the alternatives framework

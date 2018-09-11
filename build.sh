@@ -20,19 +20,17 @@ export CROSS_COMPILE_ARM32=${HOME}/android/arm-linux-androideabi-4.9/bin/arm-lin
 DEFCONFIG="flash_defconfig"
 
 # Kernel Details
-VER=".beta1"
+VER=".beta3"
 
 # Paths
 KERNEL_DIR=`pwd`
 REPACK_DIR="${HOME}/android/AnyKernel2"
 PATCH_DIR="${HOME}/android/AnyKernel2/patch"
-MODULES_DIR="${HOME}/android/AnyKernel2/modules"
 ZIP_MOVE="${HOME}/f6"
 ZIMAGE_DIR="${HOME}/f6/arch/arm64/boot/"
 
 # Functions
 function clean_all {
-		rm -rf $MODULES_DIR/*
 		cd ~/f6/out/kernel
 		rm -rf $DTBIMAGE
 		git reset --hard > /dev/null 2>&1
@@ -47,11 +45,6 @@ function make_kernel {
 		make CC=clang O=out $DEFCONFIG
 		make CC=clang O=out $THREAD
 
-}
-
-function make_modules {
-		rm `echo $MODULES_DIR"/*"`
-		find $KERNEL_DIR -name '*.ko' -exec cp -v {} $MODULES_DIR \;
 }
 
 function make_dtb {
@@ -82,7 +75,7 @@ echo -e "${restore}"
 
 
 # Vars
-BASE_AK_VER="FrankenKernel"
+BASE_AK_VER="FrankenKernelP"
 AK_VER="$BASE_AK_VER$VER"
 export LOCALVERSION=~`echo $AK_VER`
 export LOCALVERSION=~`echo $AK_VER`
@@ -121,7 +114,6 @@ case "$dchoice" in
 	y|Y )
 		make_kernel
 		make_dtb
-		make_modules
 		make_boot
 		make_zip
 		break

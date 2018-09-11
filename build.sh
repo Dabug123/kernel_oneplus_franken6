@@ -20,7 +20,7 @@ export CROSS_COMPILE_ARM32=${HOME}/android/arm-linux-androideabi-4.9/bin/arm-lin
 DEFCONFIG="flash_defconfig"
 
 # Kernel Details
-VER=".beta6"
+VER=".R1"
 
 # Paths
 KERNEL_DIR=`pwd`

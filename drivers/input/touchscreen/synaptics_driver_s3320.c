@@ -2694,7 +2694,6 @@ static ssize_t synaptics_rmi4_baseline_show_s3508(struct device *dev, char *buf,
 	   num_read_chars += sprintf(&(buf[num_read_chars]), "%d error(s). %s\n", error_count, error_count?"":"All test passed.");
 	   return num_read_chars;
 	   }
-
 	//ph = (struct test_header *)(fw->data);
 	 */
 
@@ -6550,3 +6549,4 @@ module_exit(tpd_driver_exit);
 
 MODULE_DESCRIPTION("Synaptics S3203 Touchscreen Driver");
 MODULE_LICENSE("GPL");
+

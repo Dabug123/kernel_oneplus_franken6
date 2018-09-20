@@ -1120,13 +1120,15 @@ int dsi_display_set_power(struct drm_connector *connector,
 	switch (power_mode) {
 	case SDE_MODE_DPMS_LP1:
 		printk(KERN_ERR"SDE_MODE_DPMS_LP1\n");
-		rc = dsi_panel_set_lp1(display->panel);
-		aod_mode = display->panel->aod_mode;
-		printk(KERN_ERR"When on doze state AOD_MODE = %d\n",aod_mode);
-		if(aod_mode!=0){
-	    dsi_panel_set_aod_mode(display->panel, aod_mode);
+		if (strcmp(display->panel->name, "samsung s6e3fc2x01 cmd mode dsi panel") == 0){
+		display->panel->aod_mode=2;
 		}
-
+		else
+		display->panel->aod_mode=0;
+		if(display->panel->aod_mode!=0){
+	    dsi_panel_set_aod_mode(display->panel, display->panel->aod_mode);
+	    display->panel->aod_status=1;
+		}
 		break;
 	case SDE_MODE_DPMS_LP2:
 		printk(KERN_ERR"SDE_MODE_DPMS_LP2\n");
@@ -1305,7 +1307,7 @@ static ssize_t debugfs_misr_read(struct file *file,
 		return 0;
 
 	buf = kzalloc(max_len, GFP_KERNEL);
-	if (!buf)
+	if (ZERO_OR_NULL_PTR(buf))
 		return -ENOMEM;
 
 	mutex_lock(&display->display_lock);
@@ -1336,7 +1338,7 @@ static ssize_t debugfs_misr_read(struct file *file,
 		goto error;
 	}
 
-	if (copy_to_user(user_buf, buf, len)) {
+	if (copy_to_user(user_buf, buf, max_len)) {
 		rc = -EFAULT;
 		goto error;
 	}
@@ -1423,7 +1425,7 @@ static ssize_t debugfs_alter_esd_check_mode(struct file *file,
 		return 0;
 
 	buf = kzalloc(len, GFP_KERNEL);
-	if (!buf)
+	if (ZERO_OR_NULL_PTR(buf))
 		return -ENOMEM;
 
 	if (copy_from_user(buf, user_buf, user_len)) {
@@ -1495,7 +1497,7 @@ static ssize_t debugfs_read_esd_check_mode(struct file *file,
 	}
 
 	buf = kzalloc(len, GFP_KERNEL);
-	if (!buf)
+	if (ZERO_OR_NULL_PTR(buf))
 		return -ENOMEM;
 
 	esd_config = &display->panel->esd_config;

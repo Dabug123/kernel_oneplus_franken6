@@ -61,6 +61,9 @@ struct smb_charger *g_chg;
 struct qpnp_pon *pm_pon;
 static BLOCKING_NOTIFIER_HEAD(typec_cc_chain);
 static int cc_notifier_call_chain(unsigned long val);
+/* infi@bsp, 2018/08/08 add for support audio_adaptor trigger when reboot */
+bool audio_adapter_flag;
+EXPORT_SYMBOL(audio_adapter_flag);
 
 static struct external_battery_gauge *fast_charger;
 static int op_charging_en(struct smb_charger *chg, bool en);
@@ -572,6 +575,9 @@ static int smblib_set_usb_pd_allowed_voltage(struct smb_charger *chg,
 static int smblib_request_dpdm(struct smb_charger *chg, bool enable)
 {
 	int rc = 0;
+
+	if (chg->pr_swap_in_progress)
+		return 0;
 
 	/* fetch the DPDM regulator */
 	if (!chg->dpdm_reg && of_get_property(chg->dev->of_node,
@@ -3409,7 +3415,9 @@ static int smblib_cc2_sink_removal_exit(struct smb_charger *chg)
 		return 0;
 
 	chg->cc2_detach_wa_active = false;
+	chg->in_chg_lock = true;
 	cancel_work_sync(&chg->rdstd_cc2_detach_work);
+	chg->in_chg_lock = false;
 	smblib_reg_block_restore(chg, cc2_detach_settings);
 	return 0;
 }
@@ -4681,6 +4689,7 @@ static void typec_sink_insertion(struct smb_charger *chg)
 	typec_mode = smblib_get_prop_typec_mode(chg);
 	if (typec_mode == POWER_SUPPLY_TYPEC_SINK_AUDIO_ADAPTER) {
 		chg->is_audio_adapter = true;
+		audio_adapter_flag = true;
 		pr_info("Type-C %s detected,notify!\n",
 				smblib_typec_mode_name[chg->typec_mode]);
 		cc_notifier_call_chain(1);
@@ -4829,6 +4838,7 @@ static void smblib_handle_typec_removal(struct smb_charger *chg)
 		msleep(*chg->audio_headset_drp_wait_ms);
 
 		chg->is_audio_adapter = false;
+		audio_adapter_flag = false;
 		pr_info("Type-C removal, audio_adapter_present=(%d),notify!\n",
 				chg->is_audio_adapter);
 		cc_notifier_call_chain(0);
@@ -7720,7 +7730,6 @@ static void rdstd_cc2_detach_work(struct work_struct *work)
 {
 	int rc;
 	u8 stat4, stat5;
-	bool lock = false;
 	struct smb_charger *chg = container_of(work, struct smb_charger,
 						rdstd_cc2_detach_work);
 
@@ -7789,22 +7798,15 @@ static void rdstd_cc2_detach_work(struct work_struct *work)
 	 * during pd_hard_reset from the function smblib_cc2_sink_removal_exit
 	 * which is called in the same lock context that we try to acquire in
 	 * this work routine.
-	 * Check if this work is running during pd_hard_reset and use trylock
-	 * instead of mutex_lock to prevent any deadlock if mutext is already
-	 * held.
+	 * Check if this work is running during pd_hard_reset and skip holding
+	 * mutex if lock is already held.
 	 */
-	if (chg->pd_hard_reset) {
-		if (mutex_trylock(&chg->lock))
-			lock = true;
-	} else {
+	if (!chg->in_chg_lock)
 		mutex_lock(&chg->lock);
-		lock = true;
-	}
-
 	smblib_usb_typec_change(chg);
-
-	if (lock)
+	if (!chg->in_chg_lock)
 		mutex_unlock(&chg->lock);
+
 	return;
 
 rerun:

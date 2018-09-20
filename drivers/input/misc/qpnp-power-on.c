@@ -37,6 +37,7 @@
 #include <linux/atomic.h>
 #include <linux/syscalls.h>
 #include <linux/power/oem_external_fg.h>
+#include <linux/oem_force_dump.h>
 #include <linux/param_rw.h>
 #include <linux/oneplus/boot_mode.h>
 
@@ -452,6 +453,19 @@ static ssize_t qpnp_pon_dbc_store(struct device *dev,
 	return size;
 }
 
+static struct qpnp_pon_config *
+qpnp_get_cfg(struct qpnp_pon *pon, u32 pon_type)
+{
+	int i;
+
+	for (i = 0; i < pon->num_pon_config; i++) {
+		if (pon_type == pon->pon_cfg[i].pon_type)
+			return  &pon->pon_cfg[i];
+	}
+
+	return NULL;
+}
+
 static DEVICE_ATTR(debounce_us, 0664, qpnp_pon_dbc_show, qpnp_pon_dbc_store);
 
 #define PON_TWM_ENTRY_PBS_BIT           BIT(0)
@@ -461,6 +475,7 @@ static int qpnp_pon_reset_config(struct qpnp_pon *pon,
 	int rc;
 	bool disable = false;
 	u16 rst_en_reg;
+	struct qpnp_pon_config *cfg;
 
 	/* Ignore the PS_HOLD reset config if TWM ENTRY is enabled */
 	if (pon->support_twm_config && pon->twm_state == PMIC_TWM_ENABLE) {
@@ -471,6 +486,18 @@ static int qpnp_pon_reset_config(struct qpnp_pon *pon,
 							rc);
 			return rc;
 		}
+
+		cfg = qpnp_get_cfg(pon, PON_KPDPWR);
+		if (cfg) {
+			/* configure KPDPWR_S2 to Hard reset */
+			rc = qpnp_pon_masked_write(pon, cfg->s2_cntl_addr,
+						QPNP_PON_S2_CNTL_TYPE_MASK,
+						PON_POWER_OFF_HARD_RESET);
+			if (rc < 0)
+				pr_err("Unable to config KPDPWR_N S2 for hard-reset rc=%d\n",
+					rc);
+		}
+
 		pr_crit("PMIC configured for TWM entry\n");
 		return 0;
 	}
@@ -866,19 +893,6 @@ static int qpnp_pon_store_and_clear_warm_reset(struct qpnp_pon *pon)
 	return 0;
 }
 
-static struct qpnp_pon_config *
-qpnp_get_cfg(struct qpnp_pon *pon, u32 pon_type)
-{
-	int i;
-
-	for (i = 0; i < pon->num_pon_config; i++) {
-		if (pon_type == pon->pon_cfg[i].pon_type)
-			return  &pon->pon_cfg[i];
-	}
-
-	return NULL;
-}
-
 static int
 qpnp_pon_input_dispatch(struct qpnp_pon *pon, u32 pon_type)
 {
@@ -966,6 +980,7 @@ qpnp_pon_input_dispatch(struct qpnp_pon *pon, u32 pon_type)
 	input_sync(pon->pon_input);
 
 	cfg->old_state = !!key_status;
+	oem_check_force_dump_key(cfg->key_code, key_status);
 
 	return 0;
 }
